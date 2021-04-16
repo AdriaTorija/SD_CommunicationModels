@@ -2,17 +2,13 @@ from xmlrpc.server import SimpleXMLRPCServer
 from multiprocessing import Process
 import worker as w
 server = SimpleXMLRPCServer(("localhost",8000),allow_none=True)
-
+server.register_introspection_functions()
 WORKERS = {}
 WORKER_ID=0
-print("Lokooo")
 
 
 def start_worker(id):
-    i = 0
-    while 0 < 1:
-        i+=1
-    return 12
+    print("Starting")
 
 def create_worker():
     global WORKERS
@@ -30,6 +26,8 @@ def delete_worker(id):
     print("Worker Deleted")
 
 def list_workers():
+    global WORKERS
+    global WORKER_ID
     i=0
     llista = '{'
     while i < WORKER_ID:
@@ -40,7 +38,7 @@ def list_workers():
 
 server.register_function(create_worker,"create_worker")
 server.register_function(delete_worker,"delete_worker")
-
+server.register_function(list_workers,"list_workers")
 
 try:
     print('Use Control-C to exit')
