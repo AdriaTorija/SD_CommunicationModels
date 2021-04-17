@@ -1,5 +1,6 @@
+print("hola")
 
-    
+
 def read_file(file):
     try:
         f = open(file,'w') 

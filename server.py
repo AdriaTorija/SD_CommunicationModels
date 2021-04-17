@@ -7,8 +7,12 @@ WORKERS = {}
 WORKER_ID=0
 
 
-def start_worker(func, param):
-    print("Here we do the function")
+def start_worker(id):
+    print("Starting Worker: ", id)
+
+def work(func, params):
+    print("Doing Some Work")
+
 
 def create_worker():
     global WORKERS
@@ -21,10 +25,13 @@ def create_worker():
 
 def delete_worker(id):
     global WORKERS
-    WORKERS[id].terminate()
-    del WORKERS[id]
-    print("Worker Deleted")
-
+    try:
+        WORKERS[id].terminate()
+        del WORKERS[id]
+        print("Worker ",id," Deleted")
+    except Exception:
+        print("Worker not found")
+    
 def list_workers():
     global WORKERS
     global WORKER_ID
@@ -39,6 +46,7 @@ def list_workers():
 server.register_function(create_worker,"create_worker")
 server.register_function(delete_worker,"delete_worker")
 server.register_function(list_workers,"list_workers")
+server.register_function(trying,"trying")
 
 try:
     print('Use Control-C to exit')
