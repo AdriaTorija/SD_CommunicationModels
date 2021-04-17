@@ -6,9 +6,9 @@ server.register_introspection_functions()
 WORKERS = {}
 WORKER_ID=0
 
-
-def start_worker(id):
+def start_worker(id, file):
     print("Starting Worker: ", id)
+    
 
 def work(func, params):
     print("Doing Some Work")
@@ -17,7 +17,7 @@ def work(func, params):
 def create_worker():
     global WORKERS
     global WORKER_ID
-    proc = Process(target=start_worker,args=(WORKER_ID,))
+    proc = Process(target=start_worker,args=(WORKER_ID, 'prova.txt'))
     proc.start()
     WORKERS[WORKER_ID] = proc
     WORKER_ID += 1
@@ -33,14 +33,6 @@ def delete_worker(id):
         print("Worker not found")
     
 def list_workers():
-    global WORKERS
-    global WORKER_ID
-    i=0
-    llista = '{'
-    while i < WORKER_ID:
-        llista = llista + str(i) + ','
-        i += 1
-    llista = llista + '}'
     return str(WORKERS.items())
 
 server.register_function(create_worker,"create_worker")

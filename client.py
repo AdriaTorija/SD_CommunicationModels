@@ -2,23 +2,27 @@ import xmlrpc.client
 import click
 
 @click.group()
-def main():
+def worker():
     pass
 
-@main.command()
+@click.group()
+def job():
+    pass
+
+@worker.command()
 def create():
     click.echo(proxy.create_worker())
 
-@main.command()
+@worker.command()
 @click.argument('x', type=click.INT)
 def delete(x):
     click.echo(proxy.delete_worker(x))
 
-@main.command()
+@worker.command()
 def list():
-    click.echo(proxy.list())
+    click.echo(proxy.list_workers())
 
-@main.command()
+@job.command()
 @click.argument('func', nargs=-1)
 @click.argument('arguments', nargs=1)
 def work():
