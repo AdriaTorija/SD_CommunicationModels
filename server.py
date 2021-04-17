@@ -7,8 +7,8 @@ WORKERS = {}
 WORKER_ID=0
 
 
-def start_worker(id):
-    print("Starting")
+def start_worker(func, param):
+    print("Here we do the function")
 
 def create_worker():
     global WORKERS
