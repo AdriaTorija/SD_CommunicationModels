@@ -46,7 +46,6 @@ def list_workers():
 server.register_function(create_worker,"create_worker")
 server.register_function(delete_worker,"delete_worker")
 server.register_function(list_workers,"list_workers")
-server.register_function(trying,"trying")
 
 try:
     print('Use Control-C to exit')
