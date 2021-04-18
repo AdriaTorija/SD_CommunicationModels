@@ -7,9 +7,16 @@ server = SimpleXMLRPCServer(("localhost",8000),allow_none=True)
 from flask import Flask
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def hello():
-    return "Web Created"
+@app.route('/<name>')
+def openFile(name):
+    #return("Trying {}!".format(name))
+    try:
+        f = open("{}".format(name),'r') 
+        lines=f.read()
+        f.close
+        return(lines)
+    except Exception:
+        print("F")
 app.run(port=8080)
 
 
