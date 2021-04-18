@@ -30,4 +30,4 @@ def work():
 
 if __name__ == '__main__':
     proxy=xmlrpc.client.ServerProxy('http://localhost:8000')
-    main()
+    worker()

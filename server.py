@@ -2,6 +2,19 @@ from xmlrpc.server import SimpleXMLRPCServer
 from multiprocessing import Process
 import worker as w
 server = SimpleXMLRPCServer(("localhost",8000),allow_none=True)
+
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'])
+def hello():
+    return "Web Created"
+app.run(port=8080)
+
+
+
+
 server.register_introspection_functions()
 WORKERS = {}
 WORKER_ID=0
