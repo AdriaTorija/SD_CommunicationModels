@@ -20,9 +20,13 @@ def list():
 
 @main.command()
 @click.argument('func', type=click.STRING, nargs=1)
-@click.argument('arguments', type=click.STRING, nargs=1)
+@click.argument('arguments', nargs=-1)
 def job(func, arguments):
     click.echo(proxy.create_task(func, arguments))
+
+@main.command()
+def result():
+    click.echo(proxy.get_result())
 
 if __name__ == '__main__':
     proxy=xmlrpc.client.ServerProxy('http://localhost:8000')
