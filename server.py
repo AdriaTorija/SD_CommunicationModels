@@ -1,19 +1,19 @@
 from xmlrpc.server import SimpleXMLRPCServer
-from multiprocessing import Process, Lock
+from multiprocessing import Process
 import worker as w
 server = SimpleXMLRPCServer(("localhost",8000),allow_none=True)
 
 from redis import Redis
 import json
+import pickle
 r = Redis()
-lock = Lock()
 server.register_introspection_functions()
 WORKERS = {}
 WORKER_ID=0
 TASK_ID=0
 
 def start_worker(id):
-    print("Starting Worker: ", id)
+    print("----------\nStarting Worker: " + str(id))
     
     while True:
         #See if there are tasks to be done
@@ -27,16 +27,15 @@ def start_worker(id):
             #Execute the function according to the parameter
             if funct == "counting_words":
                 result = w.counting_words(param)
-                print("WORKER ID: " + str(id) + " TASK ID: " + str(t_id) + " Result:" + str(result))
-                save_result(t_id, result)
+                print("----------\nWORKER_ID: " + str(id) + "\nTask_ID: " + str(t_id) + "\nParam: " + param + "\nResult:" + str(result) + "\n")
+                r.rpush('Task' + str(t_id), result)
 
             elif funct == "word_count":
-                result = str(w.word_count(param))
-                print("WORKER ID: " + str(id) + " TASK ID: " + str(t_id) + " Result:" + result)
-                save_result(t_id, result)
+                result = w.word_count(param)
+                print("----------\nWORKER_ID: " + str(id) + "\nTask_ID: " + str(t_id) + "\nParam: " + param + "\nResult:" + str(result) + "\n")
+                r.rpush('Task' + str(t_id), json.dumps(result))
             
             elif funct == "juntar_resultat":
-                print("Estic juntant!")
                 last = task["Last_funct"]
                 create_result(t_id, last, param)
 
@@ -49,30 +48,47 @@ def create_result(t_id, funct, param):
     length = r.llen(queue_name)
     while param > length:
         length = r.llen(queue_name)
-
+    
+    i = 0
+    
+    #Counting Words
     if funct == "counting_words":
         final = 0
-        i = 0
+
         while i < param:
-            x = r.lpop(queue_name).decode("utf-8")
-            final = int(x) + final
+            res = r.lpop(queue_name).decode("utf-8")
+            final = int(res) + final
             i += 1
 
-        print("Resultat final: " + str(final))
+    #Word Count
+    elif funct == "word_count":
+        final = dict()
+        
+        while i < param:
+            jsonRes = r.lpop(queue_name)
+            res_dict = json.loads(jsonRes)
+            
+            for x in res_dict:
+                if x in final:
+                    final[x] += res_dict[x]
+                else:
+                    final[x] = res_dict[x]
+    
+            i += 1
 
-        result = {
+    #Final result -> Client
+    print("\n----------\nTask_ID: " + str(t_id) + "\nFinal result:" + str(final) + "\n")
+
+    result = {
             'Task_ID': t_id,
             'Result': final
         }
 
-        r.rpush('Result', json.dumps(result))
+    r.rpush('Result', json.dumps(result))
 
-
-    elif funct == "word_count":
-        print("Word")
-        
 #Get all the results
 def get_result():
+    print("----------\nSERVER: GET_RESULT")
     all_results = r.lrange('Result', 0, -1)
 
     if len(all_results) == 0:
@@ -88,23 +104,14 @@ def get_result():
 
     return string
 
-#Saves the result of the function
-def save_result(t_id, result):
-    lock.acquire()
-    r.rpush('Task' + str(t_id), result)
-    lock.release()
-
 #Create a task
 def create_task(func, params):
+    print("----------\nSERVER: CREATE_TASK")
     global TASK_ID
 
     for p in params:
 
-        print("Creating a new task...")
-        print("Task_ID: " + str(TASK_ID))
-        print("Function: " + func)
-        print("Parameter: " + p)
-        print()
+        print("----------\nSERVER: Creating a new task..." + "\n\tTask_ID: " + str(TASK_ID) + "\n\tFunction: " + func + "\n\tParameter: " + p + "\n")
 
         task = {
             'Task_ID': TASK_ID,
@@ -127,6 +134,7 @@ def create_task(func, params):
 
 #Create a worker
 def create_worker():
+    print("----------\nSERVER: CREATE_WORKER")
     global WORKERS
     global WORKER_ID
     proc = Process(target=start_worker,args=(WORKER_ID,))
@@ -136,16 +144,27 @@ def create_worker():
 
 #Delete a worker
 def delete_worker(id):
+    print("----------\nSERVER: DELETE_WORKER")
     global WORKERS
     try:
         WORKERS[id].terminate()
         del WORKERS[id]
         print("Worker ",id," Deleted")
     except Exception:
-        print("Worker not found")
+        print("SERVER: [ERROR] WORKER NOT FOUND")
     
 def list_workers():
-    return str(WORKERS.items())
+    print("SERVER: LIST_WORKERS")
+    elem = WORKERS.items()
+
+    if len(elem) == 0:
+        string = 'No workers found'
+    else:
+        string = ''
+        for id, proces in elem:
+            string = string + "WORKER ID: " + str(id) + " " + str(proces) + "\n"
+        
+    return string
 
 server.register_function(create_worker,"create_worker")
 server.register_function(delete_worker,"delete_worker")
