@@ -22,3 +22,4 @@ def word_count(file):
         else:
             counts[word] = 1
     return counts
+

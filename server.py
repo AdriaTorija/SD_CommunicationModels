@@ -5,7 +5,7 @@ server = SimpleXMLRPCServer(("localhost",8000),allow_none=True)
 
 from redis import Redis
 import json
-import pickle
+
 r = Redis()
 server.register_introspection_functions()
 WORKERS = {}
@@ -24,18 +24,12 @@ def start_worker(id):
             param = task["Parameter"]
             t_id = task["Task_ID"]
 
-            #Execute the function according to the parameter
-            if funct == "counting_words":
-                result = w.counting_words(param)
-                print("----------\nWORKER_ID: " + str(id) + "\nTask_ID: " + str(t_id) + "\nParam: " + param + "\nResult:" + str(result) + "\n")
-                r.rpush('Task' + str(t_id), result)
-
-            elif funct == "word_count":
-                result = w.word_count(param)
+            if(funct != "create_result"):
+                method = getattr(w, funct)
+                result = method(param)
                 print("----------\nWORKER_ID: " + str(id) + "\nTask_ID: " + str(t_id) + "\nParam: " + param + "\nResult:" + str(result) + "\n")
                 r.rpush('Task' + str(t_id), json.dumps(result))
-            
-            elif funct == "juntar_resultat":
+            else:
                 last = task["Last_funct"]
                 create_result(t_id, last, param)
 
@@ -56,7 +50,8 @@ def create_result(t_id, funct, param):
         final = 0
 
         while i < param:
-            res = r.lpop(queue_name).decode("utf-8")
+            jsonRes = r.lpop(queue_name)
+            res = json.loads(jsonRes)
             final = int(res) + final
             i += 1
 
@@ -124,7 +119,7 @@ def create_task(func, params):
 
     task = {
         'Task_ID': TASK_ID,
-        'Function': "juntar_resultat",
+        'Function': "create_result",
         'Parameter': len(params),
         'Last_funct': func
     }
