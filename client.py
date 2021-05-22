@@ -29,5 +29,5 @@ def result():
     click.echo(proxy.get_result())
 
 if __name__ == '__main__':
-    proxy=xmlrpc.client.ServerProxy('http://localhost:8000')
+    proxy=xmlrpc.client.ServerProxy('http://localhost:8001')
     main()
