@@ -1,11 +1,10 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from multiprocessing import Process
 import worker as w
-server = SimpleXMLRPCServer(("localhost",8001),allow_none=True)
-
 from redis import Redis
 import json
 
+server = SimpleXMLRPCServer(("localhost",8001),allow_none=True)
 r = Redis()
 server.register_introspection_functions()
 WORKERS = {}
