@@ -8,6 +8,30 @@ Adrià Torija Ruiz
 
 ---------------------
 
+Github: https://github.com/hatori9/SD_CommunicationModels
+
+Com ens hem repartit la feina
+Xavier Roca Canals: Multitask i http. Per a que es puguin atendre tasques amb més d'un fitxer de manera dinàmica i connexió al server http.
+Adrià Rubio Busquets: Creació de les funcions bàsiques del servidor/worker i comandes de l'usuari
+Adrià Torija Ruiz: Creació de les funcions bàsiques del servidor/worker i comandes de l'usuari
+
+En els commits només surten dos dels membres degut a que es va treballar conjuntament i es van utilizar un sol/dos ordinadors.
+
+---------------------
+
+Execució
+
+Fitxers de prova: prova.txt, prova2.txt, prova3.txt
+
+Crear worker -> client.py create
+Esborrar worker -> client.py delete (id)
+Llistar workers -> client.py list
+Obtenir els resultats -> client.py result
+Executar counting_words -> client.py job counting_words http://localhost:8000/prova.txt http://localhost:8000/prova2.txt http://localhost:8000/prova3.txt
+Executar word_count -> client.py job word_count http://localhost:8000/prova.txt http://localhost:8000/prova2.txt http://localhost:8000/prova3.txt
+
+---------------------
+
 client.py
 
 Descripció:
